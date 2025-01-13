@@ -12,6 +12,7 @@
 
 ## API:
 Документация апи
+https://app.swaggerhub.com/apis/SASHAPRUDNIKOV/IBA/1.0.0
 
-## описание kafka:
-какой то текст
+## Описание Kafka:
+Какой то текст
