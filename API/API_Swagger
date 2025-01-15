@@ -1,0 +1,431 @@
+openapi: 3.0.0
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/SASHAPRUDNIKOV/IBA/1.0.0
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/STABROVSKAYAYA/IBA/1.0.0
+info:
+  version: "1.0.0"
+  title: API for the E-Shop
+  description: The API for the E-Shop
+  contact:
+    email: sashaprudnikov@gmail.com
+
+paths:
+  /api/v3/auth/register:
+    post:
+      summary: "Регистрация клиента"
+      description: "Эндпоинт для регистрации нового клиента. Клиент предоставляет свои данные для создания учетной записи."
+      tags:
+        - "Auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+            example:
+              client_lastname: "Ivanov"
+              client_firstname: "Ivan"
+              client_middlename: "Ivanovich"
+              client_sex: "Male"
+              client_birthdate: "1990-05-15"
+              client_email: "ivan.ivanov@example.com"
+              client_phone: "+375291234567"
+              client_delivery_address:
+                - street: "Lenina 45"
+                  city: "Minsk"
+                  state: "Minsk Region"
+                  postal_code: "220030"
+                  country: "Belarus"
+              client_paymentcard:
+                - card_number: "1234 5678 9876 5432"
+                  card_holder_name: "Ivan Ivanov"
+                  expiry_date: "12/26"
+                  cvv: "123"
+      responses:
+        '200':
+          description: "Клиент успешно зарегистрирован"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '400':
+          description: "Некорректные данные запроса"
+        '500':
+          description: "Ошибка сервера"
+
+  /api/v3/auth/login:
+    post:
+      summary: "Авторизация клиента"
+      description: "Эндпоинт для авторизации клиента. Клиент предоставляет свои учетные данные для получения токена доступа."
+      tags:
+        - "Auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              client_login: "usWOLyxX"
+              client_password: "eAA9KJRgWeSD"
+      responses:
+        '200':
+          description: "Авторизация успешна"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: "Некорректные учетные данные"
+        '500':
+          description: "Ошибка сервера"
+
+  /api/v3/product:
+    get:
+      summary: "Получение списка продуктов"
+      description: "Эндпоинт для получения списка продуктов. Поддерживает пагинацию. Если параметры запроса не указаны, возвращает первую страницу с продуктами."
+      tags:
+        - "Product"
+      parameters:
+        - name: page
+          in: query
+          description: "Номер страницы для пагинации"
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: "Количество элементов на странице"
+          required: false
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: "Список продуктов успешно получен"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+    patch:
+      summary: "Обновление информации о продукте"
+      description: "Эндпоинт для обновления информации о продукте. Поле `prod_id` обязательно, остальные поля являются опциональными."
+      tags:
+        - "Product"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+            example:
+              prod_id: "8a7b9c12-d4ef-4a5b-a678-9f3cde456123"
+              prod_price: 159.99
+              prod_discount: 10
+      responses:
+        '200':
+          description: "Информация о продукте успешно обновлена"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUpdateResponse'
+        '400':
+          description: "Некорректные данные запроса"
+        '404':
+          description: "Продукт не найден"
+        '500':
+          description: "Ошибка сервера"
+
+    post:
+      summary: "Создание нового продукта"
+      description: "Эндпоинт для создания нового продукта. При успешном запросе продукт добавляется в каталог с заданными параметрами."
+      tags:
+        - "Product"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+            example:
+              prod_group_id: "G001"
+              prod_name: "Wireless Headphones"
+              prod_price: 149.99
+              prod_discount: 15
+              prod_barcode: "1234567890123"
+              prod_count: 50
+      responses:
+        '200':
+          description: "Продукт успешно создан"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreateResponse'
+              example:
+                status: "success"
+                code: 200
+                message: "The product has been successfully created."
+                data:
+                  prod_id: "8a7b9c12-d4ef-4a5b-a678-9f3cde456123"
+                  prod_group_id: "G001"
+                  prod_name: "Wireless Headphones"
+                  prod_price: 149.99
+                  prod_discount: 15
+                  prod_barcode: "1234567890123"
+                  prod_count: 50
+                  final_price: 127.49
+                  created_at: "2024-12-30T14:00:00Z"
+        '400':
+          description: "Некорректные данные запроса"
+        '500':
+          description: "Ошибка сервера"
+
+  /api/v3/product/{prod_id}:
+    delete:
+      summary: "Удаление продукта из каталога"
+      description: "Эндпоинт для удаления продукта из каталога по его уникальному идентификатору (prod_id)."
+      tags:
+        - "Product"
+      parameters:
+        - name: prod_id
+          in: path
+          description: "Идентификатор продукта, который необходимо удалить"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Продукт успешно удален"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  code:
+                    type: integer
+                  message:
+                    type: string
+        '404':
+          description: "Продукт не найден"
+        '500':
+          description: "Ошибка сервера"
+
+  /api/v3/product/order:
+    post:
+      summary: "Добавление продукта в заказ"
+      description: "Эндпоинт для добавления продукта в заказ. Клиент указывает идентификатор продукта, количество и свой идентификатор."
+      tags:
+        - "Product"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOrderRequest'
+            example:
+              prod_id: "8a7b9c12-d4ef-4a5b-a678-9f3cde456123"
+              count: 3
+              client_id: "5b6c7d8e-f9a0-4b1c-9876-123f456abcde"
+      responses:
+        '200':
+          description: "Продукт успешно добавлен в заказ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOrderResponse'
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        client_lastname:
+          type: string
+        client_firstname:
+          type: string
+        client_middlename:
+          type: string
+        client_sex:
+          type: string
+        client_birthdate:
+          type: string
+          format: date
+        client_email:
+          type: string
+          format: email
+        client_phone:
+          type: string
+        client_delivery_address:
+          type: array
+          items:
+            type: object
+            properties:
+              street:
+                type: string
+              city:
+                type: string
+              state:
+                type: string
+              postal_code:
+                type: string
+              country:
+                type: string
+        client_paymentcard:
+          type: array
+          items:
+            type: object
+            properties:
+              card_number:
+                type: string
+              card_holder_name:
+                type: string
+              expiry_date:
+                type: string
+              cvv:
+                type: string
+
+    LoginRequest:
+      type: object
+      properties:
+        client_login:
+          type: string
+        client_password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        token:
+          type: string
+
+    ProductResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+
+    Product:
+      type: object
+      properties:
+        prod_id:
+          type: string
+        prod_group_id:
+          type: string
+        prod_name:
+          type: string
+        prod_price:
+          type: number
+          format: float
+        prod_discount:
+          type: number
+          format: float
+        prod_barcode:
+          type: string
+        prod_count:
+          type: integer
+        final_price:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+
+    ProductCreateRequest:
+      type: object
+      properties:
+        prod_group_id:
+          type: string
+        prod_name:
+          type: string
+        prod_price:
+          type: number
+          format: float
+        prod_discount:
+          type: number
+          format: float
+        prod_barcode:
+          type: string
+        prod_count:
+          type: integer
+
+    ProductCreateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Product'
+
+    ProductUpdateRequest:
+      type: object
+      properties:
+        prod_id:
+          type: string
+        prod_price:
+          type: number
+          format: float
+        prod_discount:
+          type: number
+          format: float
+
+    ProductUpdateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+
+    ProductOrderRequest:
+      type: object
+      properties:
+        prod_id:
+          type: string
+        count:
+          type: integer
+        client_id:
+          type: string
+
+    ProductOrderResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+    ClientResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        client_id:
+          type: string
+        message:
+          type: string
